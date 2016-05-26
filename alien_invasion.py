@@ -1,35 +1,33 @@
-import sys
-
 import pygame
-
+from pygame.sprite import Group
 from settings import Settings
 from ship import Ship
+import game_functions as gf
 
 def run_game():
 	#initialize game and create a screen object
 	pygame.init()
 	ai_settings = Settings()
-	screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
+	screen = pygame.display.set_mode(ai_settings.screen_size)
 	pygame.display.set_caption("Alien Invasion")
 
 	#Create ship.
-	ship = Ship(screen)
+	ship = Ship(ai_settings, screen)
 
-	#set background color
-	bg_color = (230, 230, 230)
+	# Make a group to store bullets in.
+	bullets = Group()
 
 	#start the main loop for the game
 	while True:
-		#watch for keyboard and mouse events
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				sys.exit()
+		gf.check_events(ai_settings, screen, ship, bullets)
+		bullets.update()
 
-		#redraw the screen during each pass through the loop
-		screen.fill(ai_settings.bg_color)
-		ship.blitme()
+		# Get rid of bullets that have disappeared.
+		for bullet in bullets.copy():
+			if bullet.rect.bottom <= 0:
+				bullets.remove(bullet)
 
-		#make the most recently drawn screen visible
-		pygame.display.flip()
+		ship.update()
+		gf.update_screen(ai_settings, screen, ship, bullets)
 
 run_game()
