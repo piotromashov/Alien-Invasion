@@ -1,4 +1,4 @@
-import pygame
+import pygame, pygame.mixer
 
 class Ship():
 
@@ -22,6 +22,11 @@ class Ship():
 		self.moving_right = False
 		self.moving_left = False
 
+		#Sounds loads
+		self.laser_shot = pygame.mixer.Sound('sounds/shot.wav')
+		self.laser_charge = pygame.mixer.Sound('sounds/charge.wav')
+		self.laser_beam = pygame.mixer.Sound('sounds/beam.wav')
+
 	def update(self):
 		"""Update thes ship's position based on the movement flag."""
 		if self.moving_right:
@@ -40,3 +45,12 @@ class Ship():
 	def blitme(self):
 		"""Draw the ship at its current location."""
 		self.screen.blit(self.image, self.rect)
+
+	def fire(self):
+		self.laser_shot.play()
+
+	def charge(self):
+		self.laser_charge.play()
+
+	def beam(self):
+		self.laser_beam.play()

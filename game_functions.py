@@ -54,6 +54,7 @@ def fire_bullet(ai_settings, screen, ship, bullets):
 	# Create a new bullet and add it to the bullets group.
 	new_bullet = Bullet(ai_settings, screen, ship)
 	bullets.add(new_bullet)
+	ship.fire()
 
 def create_fleet(ai_settings, screen, ship, aliens):
 	"""Create a full fleet of aliens."""
