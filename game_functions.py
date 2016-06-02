@@ -3,19 +3,20 @@ import sys
 import pygame
 
 from bullet import Bullet
+from beam import Beam
 from alien import Alien
 
-def check_events(ai_settings, screen, ship, bullets):
+def check_events(ai_settings, screen, ship, bullets, beams):
 	"""Respond to keypresses and mouse events."""
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, ai_settings, screen, ship, bullets)
+			check_keydown_events(event, ship)
 		elif event.type == pygame.KEYUP:
-			check_keyup_events(event, ship)
+			check_keyup_events(event, ai_settings, screen, ship, bullets, beams)
 
-def check_keydown_events(event, ai_settings, screen, ship, bullets):
+def check_keydown_events(event, ship):
 	#debugger
 	print str(event.key)
 	if event.key == pygame.K_RIGHT:
@@ -25,36 +26,46 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
 		#Move ship to the right.
 		ship.moving_left = True
 	elif event.key == pygame.K_SPACE:
-		fire_bullet(ai_settings, screen, ship, bullets)
+		ship.charge()
 	elif event.key == pygame.K_q:
 		sys.exit()
 
-def check_keyup_events(event, ship):
+def check_keyup_events(event, ai_settings, screen, ship, bullets, beams):
 	if event.key == pygame.K_RIGHT:
 		#Stop moving ship to the right
 		ship.moving_right = False
 	if event.key == pygame.K_LEFT:
 		#Stop moving ship to the right
 		ship.moving_left = False
+	if event.key == pygame.K_SPACE:
+		fire(ai_settings, screen, ship, bullets, beams)
 
-def update_screen(ai_settings, screen, ship, aliens, bullets):
+def update_screen(ai_settings, screen, ship, aliens, bullets, beams):
 	# Redraw the screen during each pass through the loop
 	screen.fill(ai_settings.bg_color)
 	ship.blitme()
 	aliens.draw(screen)
 
+	for beam in beams.sprites():
+		beam.draw()
+
 	# Redraw all bullets behind ship and aliens.
 	for bullet in bullets.sprites():
-		bullet.draw_bullet()
+		bullet.draw()
 
 	#make the most recently drawn screen visible
 	pygame.display.flip()
 
-def fire_bullet(ai_settings, screen, ship, bullets):
+def fire(ai_settings, screen, ship, bullets, beams):
 	# Create a new bullet and add it to the bullets group.
-	new_bullet = Bullet(ai_settings, screen, ship)
-	bullets.add(new_bullet)
-	ship.fire()
+	if ship.charge():
+		new_beam = Beam(ai_settings, screen, ship)
+		beams.add(new_beam)
+		ship.beam()
+	else:
+		new_bullet = Bullet(ai_settings, screen, ship)
+		bullets.add(new_bullet)
+		ship.fire()
 
 def create_fleet(ai_settings, screen, ship, aliens):
 	"""Create a full fleet of aliens."""
@@ -101,6 +112,22 @@ def update_bullets(ai_settings, screen, ship, aliens, bullets):
 	# Check for any bullets that have hit aliens.
 	# If so, get rid of the bullet and the alien.
 	collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+	if len(aliens) == 0:
+		create_fleet(ai_settings, screen, ship, aliens)
+
+def update_beams(ai_settings, screen, ship, aliens, beams):
+	"""Update position of beams and get rid of old beams."""
+	# Update beam positions.
+	beams.update()
+	# Get rid of beams that have disappeared.
+	for beam in beams.copy():
+		if beam.rect.bottom <= 0:
+			beams.remove(beam)
+
+	# Check for any beams that have hit aliens.
+	# If so, get rid of the bullet and the alien.
+	collisions = pygame.sprite.groupcollide(beams, aliens, False, True)
 
 	if len(aliens) == 0:
 		create_fleet(ai_settings, screen, ship, aliens)

@@ -27,6 +27,9 @@ class Ship():
 		self.laser_charge = pygame.mixer.Sound('sounds/charge.wav')
 		self.laser_beam = pygame.mixer.Sound('sounds/beam.wav')
 
+		#Charging flag
+		self.charge_load = 0
+
 	def update(self):
 		"""Update thes ship's position based on the movement flag."""
 		if self.moving_right:
@@ -42,15 +45,27 @@ class Ship():
 		#Update rect object from self.center
 		self.rect.centerx = self.center
 
+		#Update charge if was charging
+
+		if self.charge_load:
+			if self.charge_load >= 100 and self.charge_load <= 101 :
+				self.laser_charge.play()
+			self.charge_load += self.ai_settings.ship_charge_factor
+
 	def blitme(self):
 		"""Draw the ship at its current location."""
 		self.screen.blit(self.image, self.rect)
 
 	def fire(self):
+		self.charge_load = 0
+		self.laser_charge.stop()
 		self.laser_shot.play()
 
 	def charge(self):
-		self.laser_charge.play()
+		self.charge_load += 1
+		return self.charge_load >= self.ai_settings.ship_charge_time
 
 	def beam(self):
+		self.charge_load = 0
+		self.laser_charge.stop()
 		self.laser_beam.play()
