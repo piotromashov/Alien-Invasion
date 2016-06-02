@@ -1,4 +1,5 @@
-import pygame, pygame.mixer
+import pygame
+from time import sleep
 
 class Ship():
 
@@ -23,9 +24,8 @@ class Ship():
 		self.moving_left = False
 
 		#Sounds loads
-		self.laser_shot = pygame.mixer.Sound('sounds/shot.wav')
 		self.laser_charge = pygame.mixer.Sound('sounds/charge.wav')
-		self.laser_beam = pygame.mixer.Sound('sounds/beam.wav')
+		self.explosion = pygame.mixer.Sound('sounds/explosion.wav')
 
 		#Charging flag
 		self.charge_load = 0
@@ -46,11 +46,16 @@ class Ship():
 		self.rect.centerx = self.center
 
 		#Update charge if was charging
-
 		if self.charge_load:
 			if self.charge_load >= 100 and self.charge_load <= 101 :
 				self.laser_charge.play()
 			self.charge_load += self.ai_settings.ship_charge_factor
+
+	def destroyed(self):
+		#Pause
+		self.explosion.play()
+		sleep(1)
+		self.center = self.screen_rect.centerx
 
 	def blitme(self):
 		"""Draw the ship at its current location."""
@@ -59,13 +64,7 @@ class Ship():
 	def fire(self):
 		self.charge_load = 0
 		self.laser_charge.stop()
-		self.laser_shot.play()
 
 	def charge(self):
 		self.charge_load += 1
 		return self.charge_load >= self.ai_settings.ship_charge_time
-
-	def beam(self):
-		self.charge_load = 0
-		self.laser_charge.stop()
-		self.laser_beam.play()

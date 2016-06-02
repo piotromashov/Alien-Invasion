@@ -17,9 +17,11 @@ class Bullet(Sprite):
 		# Store the bullet's position as a decimal value.
 		self.y = float(self.rect.y)
 
-
 		self.color = ai_settings.bullet_color
 		self.speed_factor = ai_settings.bullet_speed_factor
+
+		self.laser_shot = pygame.mixer.Sound('sounds/shot.wav')
+		self.laser_shot.play()
 
 	def update(self):
 		"""Move the bullet up the screen."""

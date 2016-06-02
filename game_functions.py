@@ -61,11 +61,10 @@ def fire(ai_settings, screen, ship, bullets, beams):
 	if ship.charge():
 		new_beam = Beam(ai_settings, screen, ship)
 		beams.add(new_beam)
-		ship.beam()
 	else:
 		new_bullet = Bullet(ai_settings, screen, ship)
 		bullets.add(new_bullet)
-		ship.fire()
+	ship.fire()
 
 def create_fleet(ai_settings, screen, ship, aliens):
 	"""Create a full fleet of aliens."""
@@ -133,11 +132,16 @@ def update_beams(ai_settings, screen, ship, aliens, beams):
 	collisions = pygame.sprite.groupcollide(beams, aliens, False, True)
 	check_kills(ai_settings, screen, ship, aliens, beams)
 
-def update_aliens(ai_settings, aliens):
+def update_aliens(ai_settings, stats, screen, ship, aliens):
 	"""	Check if the fleet is at an edge, and then update the postions of all aliens in the fleet."""
 	check_fleet_edges(ai_settings, aliens)
-	"""Update the positions of all aliens in the fleet."""
 	aliens.update()
+
+	#Look for alien-ship collisions.
+	if pygame.sprite.spritecollideany(ship, aliens):
+		ship_hit(ai_settings, stats, screen, ship, aliens)
+
+	check_aliens_bottom(ai_settings, stats, screen, ship, aliens)
 
 def check_fleet_edges(ai_settings, aliens):
 	"""Respond appropriately if any aliens have reached an edge."""
@@ -151,3 +155,27 @@ def change_fleet_direction(ai_settings, aliens):
 	for alien in aliens.sprites():
 		alien.rect.y += ai_settings.fleet_drop_speed
 	ai_settings.fleet_direction *= -1
+
+def ship_hit(ai_settings, stats, screen, ship, aliens):
+	"""Respond to ship hit by alien"""
+	if stats.ships_left > 0:
+		#Decrement ships left
+		stats.ships_left -= 1
+
+		#Empty the list of aliens
+		aliens.empty()
+
+		#Create a new fleet and center the ship.
+		create_fleet(ai_settings, screen, ship, aliens)
+		ship.destroyed()
+	else:
+		stats.game_active = False
+
+def check_aliens_bottom(ai_settings, stats, screen, ship, aliens):
+	"""Check if any aliens have reached the bottom of the screen."""
+	screen_rect = screen.get_rect()
+	for alien in aliens.sprites():
+		if alien.rect.bottom >= screen_rect.bottom:
+			#Treat this the same as if the ship got hit.
+			ship_hit(ai_settings, stats, screen, ship, aliens)
+			break

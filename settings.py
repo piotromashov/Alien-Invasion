@@ -11,6 +11,7 @@ class Settings():
 		self.ship_speed_factor = 1.5
 		self.ship_charge_factor = 1
 		self.ship_charge_time = 250
+		self.ship_limit = 3
 
 		#Alien settings
 		self.alien_speed_factor = 1
@@ -24,7 +25,7 @@ class Settings():
 		self.bullet_color = 250, 0, 0
 
 		# Beam settings
-		self.beam_speed_factor = 10
+		self.beam_speed_factor = 20
 		self.beam_width = 3
 		self.beam_height = 200
 		self.beam_color = 250, 0, 0
