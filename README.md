@@ -1,6 +1,6 @@
 # Alien-Invasion
 
-This is a project game where you have to command your ship and defend yourself against invading aliens, its made with learning purposes, advices and feedback are welcome!
+This is a project game where you have to command your ship and defend yourself against invading aliens, its made for learning purposes. Advices and feedback are welcome!
 
 ###Installing dependencies
 To run/edit this game you must have installed Pygame, here are some instructions to do so in Linux, OSX and Windows.
